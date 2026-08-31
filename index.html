@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Research Paper Discovery & Summarizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">📚</div>
+        <div>
+          <div class="brand-title">ScholarStream AI</div>
+          <p class="brand-subtitle">RVCE Web Essentials | Hrishi • Kenver • Ishwar • Yashas</p>
+        </div>
+      </div>
+      <button id="config-btn" class="btn-secondary">⚙️ API Settings</button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <main class="primary-feed">
+      <!-- Search -->
+      <section class="card">
+        <form id="search-form" class="search-bar">
+          <div class="input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Search topics (e.g., Deep Learning, Quantum Cryptography)..." required />
+          </div>
+          <button type="submit" class="btn-primary">Discover Papers</button>
+        </form>
+        <div class="topic-chips">
+          <span>Suggestions:</span>
+          <button type="button" class="chip" onclick="quickSearch('Deep Reinforcement Learning')">Reinforcement Learning</button>
+          <button type="button" class="chip" onclick="quickSearch('Quantum Cryptography')">Quantum Cryptography</button>
+          <button type="button" class="chip" onclick="quickSearch('Edge AI')">Edge AI</button>
+          <button type="button" class="chip" onclick="quickSearch('Graph Neural Networks')">Graph Neural Networks</button>
+        </div>
+      </section>
+
+      <!-- Visualizations -->
+      <section id="visualizations" class="card hidden">
+        <div class="section-header">
+          <h3 class="section-title">Research Trend & Topic Analytics</h3>
+          <span class="meta-pill" style="color:var(--primary);">Live Telemetry</span>
+        </div>
+        <div class="analytics-grid">
+          <div class="chart-panel">
+            <h4>Publication Volume by Year</h4>
+            <div class="canvas-wrapper"><canvas id="trendChart"></canvas></div>
+          </div>
+          <div class="chart-panel">
+            <h4>Topic & Concept Frequency</h4>
+            <div class="canvas-wrapper"><canvas id="clusterChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Papers Feed -->
+      <section class="results-section">
+        <div id="results-heading" class="feed-header hidden">
+          <h2>Discovered Publications</h2>
+          <span class="meta-pill" id="results-counter">Live Corpus</span>
+        </div>
+        <div id="results-list" class="results-stack">
+          <div class="empty-state">
+            <h3>Explore Global Academic Literature</h3>
+            <p>Search research topics above or pick a suggestion chip to fetch papers, analyze trends, and trigger AI simplifications.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Sidebar AI Chatbot -->
+    <aside class="sidebar-pane">
+      <div class="card chat-card">
+        <div class="chat-header">
+          <h3>🤖 AI Research Copilot</h3>
+          <p class="brand-subtitle">Grounded on Search Corpus</p>
+        </div>
+        <div id="chat-box" class="chat-viewport">
+          <div class="msg ai-msg">
+            <div class="msg-header">ScholarAI Copilot</div>
+            Search papers on the left. I'll read their abstracts to resolve doubts, explain methodologies, or compare findings!
+          </div>
+        </div>
+        <form id="chat-form" class="chat-composer">
+          <input type="text" id="chat-input" placeholder="Ask doubts about papers..." autocomplete="off" required />
+          <button type="submit" class="btn-icon">➤</button>
+        </form>
+      </div>
+    </aside>
+  </div>
+
+  <!-- API Modal -->
+  <div id="config-modal" class="modal-overlay hidden">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>API Configuration</h3>
+        <button class="modal-close" id="close-config">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Google Gemini API Key (Required for AI)</label>
+        <input type="password" id="gemini-key-input" placeholder="AIzaSy..." />
+      </div>
+      <div class="form-group">
+        <label>OpenAlex API Key (Optional)</label>
+        <input type="password" id="openalex-key-input" placeholder="Optional rate limit key" />
+      </div>
+      <button id="save-key-btn" class="btn-primary" style="width:100%;">Save Configuration</button>
+    </div>
+  </div>
+
+  <!-- Summary Modal -->
+  <div id="summary-modal" class="modal-overlay hidden">
+    <div class="modal-window modal-wide">
+      <div class="modal-header">
+        <h3 id="modal-paper-title">Paper Analysis</h3>
+        <button class="modal-close" id="close-summary">&times;</button>
+      </div>
+      <div class="summary-section">
+        <div class="section-badge">Original Abstract</div>
+        <p id="modal-original-abstract" class="original-text"></p>
+      </div>
+      <div class="summary-section">
+        <div class="section-badge" style="color:var(--primary);">✨ AI Structured Takeaway</div>
+        <div id="modal-simplified-summary" class="ai-box">Analyzing...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    function quickSearch(t) {
+      document.getElementById('search-input').value = t;
+      document.getElementById('search-form').dispatchEvent(new Event('submit'));
+    }
+  </script>
+</body>
+</html>

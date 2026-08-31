@@ -1,0 +1,102 @@
+:root {
+  --primary: #4338ca;
+  --primary-hover: #3730a3;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-subtle: #f1f5f9;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+/* 1. Navbar */
+.navbar { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 40; }
+.nav-container { max-width: 1280px; margin: auto; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; }
+.brand { display: flex; align-items: center; gap: 0.7rem; }
+.brand-icon { background: var(--primary); color: #fff; width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+.brand-title { font-weight: 700; font-size: 1rem; }
+.brand-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+
+/* 2. Layout Grid */
+.app-layout { display: grid; grid-template-columns: 1fr 380px; gap: 1.25rem; max-width: 1280px; margin: 1.25rem auto; padding: 0 1rem 2rem; }
+.primary-feed { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+
+/* 3. Search & Topic Chips */
+.search-bar { display: flex; gap: 0.5rem; }
+.input-wrapper { position: relative; flex: 1; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 0.85rem; color: var(--text-muted); font-size: 0.85rem; }
+.input-wrapper input { width: 100%; padding: 0.75rem 0.85rem 0.75rem 2.3rem; border-radius: 8px; border: 1px solid var(--border); outline: none; font-size: 0.9rem; }
+.input-wrapper input:focus { border-color: var(--primary); }
+.btn-primary { background: var(--primary); color: #fff; border: none; padding: 0.75rem 1.2rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-secondary { background: var(--surface-subtle); color: var(--text); border: 1px solid var(--border); padding: 0.45rem 0.75rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.topic-chips { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--border); font-size: 0.78rem; }
+.chip { background: var(--surface-subtle); border: 1px solid var(--border); color: var(--text-muted); padding: 0.25rem 0.65rem; border-radius: 999px; cursor: pointer; }
+.chip:hover { background: #e0e7ff; color: var(--primary); }
+
+/* 4. Analytics & Canvas Charts */
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+.section-title { font-size: 1rem; font-weight: 700; }
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.chart-panel { background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; min-width: 0; }
+.chart-panel h4 { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
+.canvas-wrapper { width: 100%; display: flex; justify-content: center; }
+
+/* 5. Paper Results Feed */
+.feed-header { display: flex; justify-content: space-between; align-items: center; margin: 0.5rem 0; }
+.results-stack { display: flex; flex-direction: column; gap: 0.75rem; }
+.paper-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; transition: transform 0.1s, box-shadow 0.1s; }
+.paper-item:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.06); }
+.paper-item h3 { font-size: 0.98rem; color: #1e1b4b; margin-bottom: 0.4rem; word-break: break-word; }
+.meta-info { display: flex; flex-wrap: wrap; gap: 0.4rem; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.meta-pill { background: var(--surface-subtle); border: 1px solid var(--border); padding: 0.2rem 0.45rem; border-radius: 4px; font-weight: 500; }
+.paper-abstract-preview { font-size: 0.85rem; color: #475569; line-height: 1.5; margin-bottom: 0.75rem; word-break: break-word; }
+.paper-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.empty-state { text-align: center; padding: 2.5rem 1rem; border: 1px dashed var(--border); border-radius: 12px; }
+.empty-state h3 { font-size: 0.98rem; margin-bottom: 0.3rem; }
+.empty-state p { font-size: 0.84rem; color: var(--text-muted); max-width: 440px; margin: auto; }
+
+/* 6. Sidebar AI Copilot Chat */
+.sidebar-pane { min-width: 0; }
+.chat-card { position: sticky; top: 4.5rem; height: calc(100vh - 6rem); display: flex; flex-direction: column; }
+.chat-header { border-bottom: 1px solid var(--border); padding-bottom: 0.6rem; margin-bottom: 0.6rem; }
+.chat-viewport { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; padding-right: 4px; }
+.msg { padding: 0.65rem 0.8rem; border-radius: 8px; font-size: 0.82rem; line-height: 1.45; max-width: 90%; word-break: break-word; }
+.user-msg { background: var(--primary); color: #fff; align-self: flex-end; }
+.ai-msg { background: var(--surface-subtle); border: 1px solid var(--border); align-self: flex-start; }
+.msg-header { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px; }
+.chat-composer { display: flex; gap: 0.4rem; border-top: 1px solid var(--border); padding-top: 0.6rem; }
+.chat-composer input { flex: 1; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 0.85rem; min-width: 0; }
+.btn-icon { background: var(--primary); color: #fff; border: none; width: 36px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem; }
+
+/* 7. Modals & Visual Formatting */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: center; z-index: 50; padding: 1rem; }
+.modal-window { background: var(--surface); border-radius: 12px; width: 100%; max-width: 460px; max-height: 85vh; overflow-y: auto; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; }
+.modal-wide { max-width: 600px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; }
+.modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; line-height: 1; color: var(--text-muted); }
+.form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem; }
+.form-group input { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
+.section-badge { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+.ai-box { background: #fdfcfe; border: 1px solid #c7d2fe; border-left: 3px solid var(--primary); padding: 0.85rem; border-radius: 6px; font-size: 0.85rem; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+.original-text { background: var(--surface-subtle); padding: 0.75rem; border-radius: 6px; font-size: 0.82rem; color: #475569; line-height: 1.5; word-break: break-word; }
+.hidden { display: none !important; }
+
+/* 8. Responsive Breakpoints */
+@media (max-width: 900px) {
+  .app-layout { grid-template-columns: 1fr; margin: 0.8rem auto; }
+  .chat-card { position: static; height: 440px; }
+  .analytics-grid { grid-template-columns: 1fr; }
+  .brand-subtitle { display: none; }
+}
+@media (max-width: 600px) {
+  .search-bar { flex-direction: column; }
+  .btn-primary { width: 100%; }
+  .paper-actions { flex-direction: column; }
+  .paper-actions button, .paper-actions a { width: 100%; }
+}
