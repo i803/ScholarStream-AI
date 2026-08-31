@@ -2,11 +2,11 @@ let currentPapers = [];
 let msgCount = 0;
 const $ = (id) => document.getElementById(id);
 
-// API Keys Setup (Groq Cloud + OpenAlex)
-let groqApiKey = localStorage.getItem('groq_api_key') || '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';
-let openAlexApiKey = localStorage.getItem('openalex_api_key') || 'mVQs5uRrDbstNEcfSXoU6O';
+// API Keys Setup: Reads custom user overrides from localStorage (if any)
+let groqApiKey = localStorage.getItem('groq_api_key') || '';
+let openAlexApiKey = localStorage.getItem('openalex_api_key') || '';
 
-// Load stored keys into Settings Modal inputs on page load
+// Load stored custom keys into Settings Modal inputs on page load
 if ($('groq-key-input')) $('groq-key-input').value = groqApiKey;
 if ($('openalex-key-input')) $('openalex-key-input').value = openAlexApiKey;
 
@@ -15,7 +15,6 @@ $('config-btn').onclick = () => $('config-modal').classList.remove('hidden');
 $('close-config').onclick = () => $('config-modal').classList.add('hidden');
 $('close-summary').onclick = () => $('summary-modal').classList.add('hidden');
 
-// Close modals when clicking the dimmed background overlay
 window.addEventListener('click', (e) => {
   if (e.target === $('config-modal')) $('config-modal').classList.add('hidden');
   if (e.target === $('summary-modal')) $('summary-modal').classList.add('hidden');
@@ -25,14 +24,14 @@ $('save-key-btn').onclick = () => {
   const gKey = $('groq-key-input') ? $('groq-key-input').value.trim() : '';
   const aKey = $('openalex-key-input') ? $('openalex-key-input').value.trim() : '';
 
-  if (gKey) {
-    groqApiKey = gKey;
-    localStorage.setItem('groq_api_key', groqApiKey);
-  }
-  if (aKey) {
-    openAlexApiKey = aKey;
-    localStorage.setItem('openalex_api_key', openAlexApiKey);
-  }
+  groqApiKey = gKey;
+  openAlexApiKey = aKey;
+
+  if (gKey) localStorage.setItem('groq_api_key', groqApiKey);
+  else localStorage.removeItem('groq_api_key');
+
+  if (aKey) localStorage.setItem('openalex_api_key', openAlexApiKey);
+  else localStorage.removeItem('openalex_api_key');
 
   $('config-modal').classList.add('hidden');
   alert('API Configuration Saved!');
@@ -52,7 +51,7 @@ function formatMarkdown(text) {
     .replace(/\n/gim, '<br>');
 }
 
-// 3. Abstract Reconstructor (Handles sparse inverted indexes safely)
+// 3. Abstract Reconstructor
 function extractAbstract(index) {
   if (!index || typeof index !== 'object') return 'No abstract preview available for this publication.';
   const words = [];
@@ -120,12 +119,8 @@ function renderPapers(papers) {
   `).join('');
 }
 
-// 5. Groq Cloud AI Caller with Model Fallback Queue
+// 5. Groq Cloud AI Caller (Uses Vercel /api/groq backend endpoint with client fallback)
 async function callGroq(systemPrompt, userPrompt) {
-  if (!groqApiKey || !groqApiKey.startsWith('gsk_')) {
-    throw new Error("Missing or invalid Groq API Key. Click '⚙️ API Settings' and enter your free key (starts with 'gsk_') from console.groq.com.");
-  }
-
   const models = [
     'llama-3.3-70b-versatile',
     'llama-3.1-8b-instant',
@@ -138,12 +133,16 @@ async function callGroq(systemPrompt, userPrompt) {
 
   for (const model of models) {
     try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      // If the user specified a custom client key, call Groq directly; otherwise call the Vercel serverless function
+      const endpoint = groqApiKey ? 'https://api.groq.com/openai/v1/chat/completions' : '/api/groq';
+      const headers = { 'Content-Type': 'application/json' };
+      if (groqApiKey) {
+        headers['Authorization'] = `Bearer ${groqApiKey.trim()}`;
+      }
+
+      const res = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${groqApiKey.trim()}`,
-          'Content-Type': 'application/json'
-        },
+        headers: headers,
         body: JSON.stringify({
           model: model,
           messages: [
@@ -162,9 +161,9 @@ async function callGroq(systemPrompt, userPrompt) {
       }
 
       if (data.error) {
-        lastError = data.error.message;
+        lastError = data.error.message || data.error;
         if (data.error.code === 'invalid_api_key' || res.status === 401) {
-          throw new Error('Invalid Groq API Key. Please verify your key at console.groq.com.');
+          throw new Error('Invalid Groq API Key. Please verify your environment variables or custom key.');
         }
       }
     } catch (err) {
@@ -173,7 +172,7 @@ async function callGroq(systemPrompt, userPrompt) {
     }
   }
 
-  throw new Error(lastError || "Failed to reach Groq API. Please verify your internet connection.");
+  throw new Error(lastError || "Failed to reach Groq API. Check your Vercel environment variables or internet connection.");
 }
 
 // 6. Live AI Abstract Simplifier
@@ -191,21 +190,19 @@ async function openSummarizer(i) {
     const result = await callGroq(sysPrompt, userPrompt);
     $('modal-simplified-summary').innerHTML = formatMarkdown(result);
   } catch (err) {
-    $('modal-simplified-summary').innerHTML = `<span style="color:#dc2626; font-weight:bold;">⚠️ AI Generation Failed:</span><br>${err.message}<br><br><small>Click <strong>API Settings</strong> to enter your free key from <a href="https://console.groq.com" target="_blank" style="color:var(--primary);">console.groq.com</a>.</small>`;
+    $('modal-simplified-summary').innerHTML = `<span style="color:#dc2626; font-weight:bold;">⚠️ AI Generation Failed:</span><br>${err.message}<br><br><small>Add your key in <strong>API Settings</strong> or configure <code>GROQ_API_KEY</code> on Vercel.</small>`;
   }
 }
 
-// 7. Live AI Research Assistant Chatbot (Context-Aware Doubt Solver)
+// 7. Live AI Research Assistant Chatbot
 $('chat-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const q = $('chat-input').value.trim();
   if (!q) return;
 
-  // Append user bubble with unique ID
   appendChatMessage('user', q);
   $('chat-input').value = '';
 
-  // Append AI loading bubble with unique ID
   const botId = appendChatMessage('ai', 'Analyzing research corpus...');
 
   try {
@@ -217,7 +214,7 @@ $('chat-form').addEventListener('submit', async (e) => {
     const answer = await callGroq(sysPrompt, userPrompt);
     updateChatMessage(botId, answer);
   } catch (err) {
-    updateChatMessage(botId, `⚠️ AI Error: ${err.message}\n\nPlease check your Groq API key in 'API Settings'.`);
+    updateChatMessage(botId, `⚠️ AI Error: ${err.message}\n\nPlease check your Groq API key.`);
   }
 });
 
@@ -230,7 +227,6 @@ function askAiAboutPaper(i) {
   }
 }
 
-// Collision-free message builder
 function appendChatMessage(sender, text) {
   const id = `msg-${Date.now()}-${++msgCount}`;
   const div = document.createElement('div');
@@ -256,7 +252,7 @@ function escapeHTML(str) {
   return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
 }
 
-// 8. Responsive Visualizations
+// 8. Visualizations
 function drawVisualizations(papers) {
   $('visualizations').classList.remove('hidden');
   const years = {}, topics = {};
@@ -280,8 +276,7 @@ function drawChart(id, dataMap) {
 
   const max = Math.max(...vals, 1);
   const pad = 24, chartH = canvas.height - pad * 2;
-  
-  // Calculate proportional bar width with safety bounds for 1 or 2 items
+
   const availableW = canvas.width - pad * 2;
   const rawBarW = (availableW - (keys.length - 1) * 8) / keys.length;
   const barW = Math.min(50, Math.max(12, rawBarW));
@@ -291,7 +286,7 @@ function drawChart(id, dataMap) {
     const barH = (vals[i] / max) * (chartH - 20);
     const x = pad + i * (barW + (keys.length === 1 ? 0 : spacing));
     const y = canvas.height - pad - barH;
-    
+
     ctx.fillStyle = '#4338ca';
     ctx.fillRect(x, y, barW, barH);
     ctx.fillStyle = '#0f172a';
